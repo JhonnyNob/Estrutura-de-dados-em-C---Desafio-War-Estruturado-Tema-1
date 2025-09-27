@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[100];
+    char cor[50];
+    int tropas;
+} territorio;
+
+int main() {
+    int numTerritorios = 5;
+    territorio *mapa = (territorio *) malloc(numTerritorios * sizeof(territorio));
+    if (!mapa) {
+        printf("Erro na alocação de memória!\n");
+        return 1;
+    }
+
+    srand(time(NULL));
+
+    printf("=== Cadastro de Territórios ===\n");
+    for(int i = 0; i < numTerritorios; i++) {
+        territorio *t = &mapa[i];
+        printf("Nome do Território: ");
+        fgets(t->nome, 100, stdin);
+
+        printf("Cor do território: ");
+        fgets(t->cor, 50, stdin);
+
+        printf("Número de tropas: ");
+        scanf("%d", &t->tropas);
+        getchar(); // consome o enter
+    }
+
+    printf("\n=== Lista de Territórios ===\n");
+    for(int i = 0; i < numTerritorios; i++) {
+        territorio *t = &mapa[i];
+        printf("Território: %s", t->nome);
+        printf("Cor: %s", t->cor);
+        printf("Tropas: %d\n", t->tropas);
+        printf("----------------------\n");
+    }
+
+    int defensor, atacante;
+    printf("Escolha seu território defensor (1 a 5): ");
+    scanf("%d", &defensor);
+    printf("Escolha seu território atacante (1 a 5): ");
+    scanf("%d", &atacante);
+
+    if(defensor == atacante) {
+        printf("Seu reino se rebelou e se autodestruiu! Game Over!\n");
+        free(mapa);
+        return 0;
+    }
+
+    territorio *tDefensor = &mapa[defensor-1];
+    territorio *tAtacante = &mapa[atacante-1];
+
+    int dado_defensor = (rand() % 6) + 1;
+    int dado_atacante = (rand() % 6) + 1;
+
+    printf("\nBatalha entre %s e %s\n", tDefensor->nome, tAtacante->nome);
+    printf("Defensor rolou: %d 🎲\n", dado_defensor);
+    printf("Atacante rolou: %d 🎲\n", dado_atacante);
+
+    if(dado_defensor > dado_atacante) {
+        printf("Defensor venceu!\n");
+        tAtacante->tropas -= 1;
+        if(tAtacante->tropas <= 0) {
+            printf("Território conquistado pelo defensor!\n");
+            tAtacante->tropas = 1;
+            strcpy(tAtacante->cor, tDefensor->cor);
+        }
+    } else if(dado_atacante > dado_defensor) {
+        printf("Atacante venceu!\n");
+        tDefensor->tropas -= 1;
+    } else {
+        printf("Empate!\n");
+    }
+
+    free(mapa);
+    return 0;
+}
